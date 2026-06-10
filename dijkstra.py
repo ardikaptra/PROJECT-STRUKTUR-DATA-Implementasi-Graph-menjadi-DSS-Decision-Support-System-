@@ -1,6 +1,6 @@
 import heapq
 
-def dijkstra(graph, start):
+def dijkstra(graph,start):
 
     distances = {
         node: float('inf')
@@ -9,13 +9,13 @@ def dijkstra(graph, start):
 
     distances[start] = 0
 
-    pq = [(0, start)]
+    pq = [(0,start)]
 
     while pq:
 
-        current_distance, current_node = heapq.heappop(pq)
+        current_distance,current_node = heapq.heappop(pq)
 
-        for neighbor, weight in graph[current_node].items():
+        for neighbor,weight in graph[current_node].items():
 
             distance = current_distance + weight
 
@@ -25,7 +25,7 @@ def dijkstra(graph, start):
 
                 heapq.heappush(
                     pq,
-                    (distance, neighbor)
+                    (distance,neighbor)
                 )
 
     return distances
