@@ -1,187 +1,65 @@
-# ==========================================================
-# dijkstra.py
-# DSS Beach Club Bali
-# Algoritma Dijkstra dengan Tracking Langkah
-# ==========================================================
-
 import heapq
+import pandas as pd
 
+class BaliBeachClubGraph:
+    def __init__(self):
+        self.adjacency_list = {}
+        self.node_metadata = {}
 
-class Dijkstra:
+    def add_node(self, node_name: str, metadata: dict = None):
+        if node_name not in self.adjacency_list:
+            self.adjacency_list[node_name] = []
+        self.node_metadata[node_name] = metadata or {}
 
-    def __init__(self, graph):
-        """
-        graph format:
+    def add_edge(self, source: str, destination: str, weight: float):
+        self.add_node(source)
+        self.add_node(destination)
+        self.adjacency_list[source].append((destination, weight))
 
-        {
-            "A": {
-                "B": 5,
-                "C": 10
-            }
-        }
-        """
+    def get_adjacency_matrix(self) -> pd.DataFrame:
+        nodes = sorted(list(self.adjacency_list.keys()))
+        matrix = {node: {target: 0 for target in nodes} for node in nodes}
+        for source, edges in self.adjacency_list.items():
+            for destination, weight in edges:
+                if destination in matrix[source]:
+                    matrix[source][destination] = weight
+        return pd.DataFrame.from_dict(matrix, orient='index')
 
-        self.graph = graph
+    def compute_dijkstra(self, start_node: str, end_node: str):
+        if start_node not in self.adjacency_list or end_node not in self.adjacency_list:
+            return [], float('inf'), {}
+        distances = {node: float('inf') for node in self.adjacency_list}
+        distances[start_node] = 0
+        previous_nodes = {node: None for node in self.adjacency_list}
+        priority_queue = [(0, start_node)]
+        calculation_log = {} 
 
-    # ======================================================
-    # SHORTEST PATH
-    # ======================================================
-
-    def shortest_path(
-        self,
-        start,
-        target
-    ):
-        """
-        Mengembalikan:
-
-        path
-        total_cost
-        steps
-        """
-
-        distances = {
-            node: float("inf")
-            for node in self.graph
-        }
-
-        previous = {
-            node: None
-            for node in self.graph
-        }
-
-        distances[start] = 0
-
-        pq = [(0, start)]
-
-        visited = set()
-
-        steps = []
-
-        while pq:
-
-            current_distance, current_node = heapq.heappop(pq)
-
-            if current_node in visited:
-                continue
-
-            visited.add(current_node)
-
-            # ==========================================
-            # SIMPAN LANGKAH
-            # ==========================================
-
-            steps.append({
-                "current_node": current_node,
-                "current_distance": current_distance,
-                "visited": list(visited),
-                "priority_queue": pq.copy(),
-                "distances": distances.copy()
-            })
-
-            # ==========================================
-            # TARGET DITEMUKAN
-            # ==========================================
-
-            if current_node == target:
+        while priority_queue:
+            current_distance, current_node = heapq.heappop(priority_queue)
+            calculation_log[current_node] = current_distance
+            if current_node == end_node:
                 break
-
-            # ==========================================
-            # EKSPLORASI TETANGGA
-            # ==========================================
-
-            for neighbor, weight in self.graph[current_node].items():
-
-                new_distance = (
-                    current_distance + weight
-                )
-
-                if new_distance < distances[neighbor]:
-
-                    distances[neighbor] = new_distance
-
-                    previous[neighbor] = current_node
-
-                    heapq.heappush(
-                        pq,
-                        (
-                            new_distance,
-                            neighbor
-                        )
-                    )
-
-        # ==============================================
-        # REKONSTRUKSI PATH
-        # ==============================================
-
-        path = []
-
-        current = target
-
-        while current is not None:
-
-            path.append(current)
-
-            current = previous[current]
-
-        path.reverse()
-
-        # ==============================================
-        # CEK PATH VALID
-        # ==============================================
-
-        if path[0] != start:
-
-            return {
-                "path": [],
-                "cost": float("inf"),
-                "steps": steps
-            }
-
-        return {
-            "path": path,
-            "cost": distances[target],
-            "steps": steps
-        }
-
-    # ======================================================
-    # SEMUA JARAK
-    # ======================================================
-
-    def all_distances(self, start):
-
-        distances = {
-            node: float("inf")
-            for node in self.graph
-        }
-
-        distances[start] = 0
-
-        pq = [(0, start)]
-
-        while pq:
-
-            current_distance, current_node = heapq.heappop(pq)
-
             if current_distance > distances[current_node]:
                 continue
+            for neighbor, weight in self.adjacency_list.get(current_node, []):
+                distance = current_distance + weight
+                if distance < distances[neighbor]:
+                    distances[neighbor] = distance
+                    previous_nodes[neighbor] = current_node
+                    heapq.heappush(priority_queue, (distance, neighbor))
 
-            for neighbor, weight in self.graph[current_node].items():
+        path = []
+        current = end_node
+        while current is not None:
+            path.insert(0, current)
+            current = previous_nodes[current]
+        return (path if distances[end_node] != float('inf') else [], distances[end_node], calculation_log)
 
-                new_distance = (
-                    current_distance + weight
-                )
-
-                if new_distance < distances[neighbor]:
-
-                    distances[neighbor] = new_distance
-
-                    heapq.heappush(
-                        pq,
-                        (
-                            new_distance,
-                            neighbor
-                        )
-                    )
-
-        return distances
+    def compute_degree_centrality(self) -> dict:
+        centrality = {node: 0 for node in self.adjacency_list}
+        for source, edges in self.adjacency_list.items():
+            centrality[source] += len(edges)  
+            for destination, _ in edges:
+                if destination in centrality:
+                    centrality[destination] += 1  
+        return centrality
