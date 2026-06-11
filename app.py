@@ -6,9 +6,6 @@ import plotly.graph_objects as o
 import pydeck as pdk
 import io
 
-# -----------------------------------------------------------------------------
-# 1. STREAMLIT CONFIGURATION & APP INITIALIZATION
-# -----------------------------------------------------------------------------
 st.set_page_config(
     page_title="Villas & Waves | Bali Beach Club DSS Dashboard",
     page_icon="🏖️",
@@ -16,9 +13,6 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# -----------------------------------------------------------------------------
-# 2. RAW DATA & COORDINATES MAP
-# -----------------------------------------------------------------------------
 DATASET_CSV = """BeachClub,Area,Rating,Harga,Fasilitas,Jarak
 Finns Beach Club,Canggu,4.8,300,95,5
 Atlas Beach Fest,Canggu,4.7,250,92,4
@@ -51,7 +45,7 @@ Alas Harum Pool Club,Ubud,4.8,260,93,21
 Jungle Fish,Ubud,4.6,200,89,23
 OMNIA Legacy,Uluwatu,4.8,450,98,14"""
 
-# Map locations to mock structural visual links & geo coordinates to guarantee exact rendering
+
 GEO_DATA = {
     "Canggu": (-8.6499, 115.1275, "https://images.unsplash.com/photo-1571896349842-33c89424de2d?q=80&w=600&auto=format&fit=crop"),
     "Seminyak": (-8.6913, 115.1505, "https://images.unsplash.com/photo-1540555700478-4be289fbecef?q=80&w=600&auto=format&fit=crop"),
@@ -68,14 +62,10 @@ GEO_DATA = {
 
 DEFAULT_IMAGE = "https://images.unsplash.com/photo-1537996194471-e657df975ab4?q=80&w=600&auto=format&fit=crop"
 
-# -----------------------------------------------------------------------------
-# 3. GLOBAL EXECUTIVE STYLING (DARK LUXURY GLASSMORPHISM)
-# -----------------------------------------------------------------------------
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-    /* Global Body Overrides */
     html, body, [data-testid="stAppViewContainer"] {
         background: radial-gradient(circle at 50% 0%, #151a30 0%, #0b0c10 100%) !important;
         font-family: 'Plus Jakarta Sans', sans-serif !important;
@@ -86,20 +76,17 @@ st.markdown("""
         background: transparent !important;
     }
 
-    /* Sidebar Custom Glassmorphism Theme */
     [data-testid="stSidebar"] {
         background-color: rgba(15, 22, 42, 0.75) !important;
         backdrop-filter: blur(25px) !important;
         border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
     }
 
-    /* Target inputs/widgets inside Sidebar */
     [data-testid="stSidebar"] .stSelectbox, [data-testid="stSidebar"] .stSlider, [data-testid="stSidebar"] .stTextInput {
         background-color: rgba(255, 255, 255, 0.03) !important;
         border-radius: 12px;
     }
 
-    /* Custom Premium Containers & Glassmorphism Design System */
     .glass-card {
         background: rgba(255, 255, 255, 0.03);
         backdrop-filter: blur(16px) saturate(180%);
@@ -118,7 +105,6 @@ st.markdown("""
         box-shadow: 0 12px 40px 0 rgba(212, 175, 55, 0.15);
     }
 
-    /* Luxury Traveloka-Airbnb Style Hero Section */
     .hero-container {
         position: relative;
         background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(11, 12, 16, 1)), 
@@ -151,7 +137,6 @@ st.markdown("""
         margin: 0 auto 40px auto;
     }
 
-    /* Quick Stats Inline Engine */
     .stat-row {
         display: flex;
         justify-content: center;
@@ -182,7 +167,6 @@ st.markdown("""
         margin-top: 4px;
     }
 
-    /* Airbnb/Tripadvisor Cards Layout UI Component */
     .hotel-card {
         background: rgba(30, 41, 59, 0.4);
         border: 1px solid rgba(255, 255, 255, 0.06);
@@ -217,7 +201,6 @@ st.markdown("""
         transform: scale(1.08);
     }
 
-    /* Badge Architecture */
     .rank-tag {
         position: absolute;
         top: 15px;
@@ -298,7 +281,6 @@ st.markdown("""
         margin-top: 2px;
     }
 
-    /* Call To Action Buttons custom look */
     .action-btn-anchor {
         text-decoration: none !important;
     }
@@ -321,7 +303,6 @@ st.markdown("""
         box-shadow: 0 6px 20px rgba(212,175,55,0.3);
     }
 
-    /* Recommendation Standout Banner Section */
     .top-rec-banner {
         background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(15, 23, 42, 0.6) 100%);
         border: 2px solid #d4af37;
@@ -331,7 +312,6 @@ st.markdown("""
         box-shadow: 0 10px 40px rgba(212,175,55,0.1);
     }
 
-    /* Typography Utilities */
     .section-header {
         font-size: 1.8rem;
         font-weight: 700;
@@ -341,7 +321,6 @@ st.markdown("""
         padding-left: 15px;
     }
     
-    /* Footer Custom Layout Styling */
     .footer-container {
         border-top: 1px solid rgba(255,255,255,0.08);
         padding-top: 40px;
@@ -353,23 +332,22 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# 4. BUSINESS LOGIC & DATA PIPELINE
-# -----------------------------------------------------------------------------
 @st.cache_data
 def load_and_initialize_data():
     df = pd.read_csv(io.StringIO(DATASET_CSV))
     
-    # Inject Geo-Coordinates and Image Visuals pipeline maps
+    # Mapping Data Geospasial & Gambar
     df['lat'] = df['Area'].map(lambda x: GEO_DATA.get(x, (-8.4095, 115.1889))[0])
     df['lon'] = df['Area'].map(lambda x: GEO_DATA.get(x, (-8.4095, 115.1889))[1])
     df['Image'] = df['Area'].map(lambda x: GEO_DATA.get(x, (0,0, DEFAULT_IMAGE))[2])
     
+    # Konversi Nilai Skala Menjadi Rupiah Riil (Dikali 1000)
+    df['Harga_Rupiah'] = df['Harga'] * 1000
     return df
 
 def execute_dss_engine(df):
     """
-    Executes the analytical decision support scoring logic framework.
+    Rumus DSS Utama:
     Score = (Rating * 40) + (Fasilitas * 0.3) - (Harga * 0.05) - (Jarak * 0.2)
     """
     df_calc = df.copy()
@@ -380,117 +358,117 @@ def execute_dss_engine(df):
         (df_calc['Jarak'] * 0.2)
     )
     df_calc['Score'] = df_calc['Score'].round(2)
-    # Perform strict computational ranking descending
     df_ranked = df_calc.sort_values(by='Score', ascending=False).reset_index(drop=True)
     df_ranked['Rank'] = df_ranked.index + 1
     return df_ranked
 
-# Process Core Engine Collections Pipeline
+def format_rupiah(val):
+    return f"Rp {val:,.0f}".replace(",", ".")
+
+# Jalankan Pipeline Data
 df_raw = load_and_initialize_data()
 df_scored = execute_dss_engine(df_raw)
 
-# -----------------------------------------------------------------------------
-# 5. SIDEBAR COMPLEX FILTERING SYSTEM ARCHITECTURE
-# -----------------------------------------------------------------------------
-st.sidebar.markdown("<h2 style='color:#d4af37; font-weight:800; margin-bottom:0;'>EXPLORE BALI</h2>", unsafe_allow_html=True)
-st.sidebar.markdown("<p style='color:#64748b; font-size:0.85rem; margin-bottom:24px;'>Premium Decision Workspace</p>", unsafe_allow_html=True)
+st.sidebar.markdown("<h2 style='color:#d4af37; font-weight:800; margin-bottom:0;'>EKSPLORASI BALI</h2>", unsafe_allow_html=True)
+st.sidebar.markdown("<p style='color:#64748b; font-size:0.85rem; margin-bottom:24px;'>Sistem Pendukung Keputusan Premium</p>", unsafe_allow_html=True)
 
-search_query = st.sidebar.text_input("🔍 Search Beach Club", value="", placeholder="e.g. Savaya, Finns...")
+search_query = st.sidebar.text_input("🔍 Cari Beach Club", value="", placeholder="Contoh: Savaya, Finns...")
 
 all_areas = sorted(df_scored['Area'].unique().tolist())
-selected_areas = st.sidebar.multiselect("📍 Filter by Area", options=all_areas, default=all_areas)
+selected_areas = st.sidebar.multiselect("📍 Filter Wilayah / Area", options=all_areas, default=all_areas)
 
-max_dataset_price = int(df_scored['Harga'].max())
-budget_limit = st.sidebar.slider("💰 Maximum Budget (USD / Entry)", min_value=50, max_value=5000, value=1000, step=50)
 
-min_rating = st.sidebar.slider("⭐ Minimum Rating Score", min_value=4.0, max_value=5.0, value=4.5, step=0.1)
-
-sort_option = st.sidebar.selectbox(
-    "📊 Primary Sort Sequence", 
-    options=["DSS Recommendation Score", "Highest Rating", "Lowest Price (Value)", "Proximity (Nearest)"]
+budget_limit = st.sidebar.slider(
+    "💰 Batas Budget Maksimal (Minimum Spend)", 
+    min_value=50000, 
+    max_value=5000000, 
+    value=1500000, 
+    step=50000,
+    format="Rp %d"
 )
 
-# Apply Complex Multi-tier Filters Matrix
+min_rating = st.sidebar.slider("⭐ Rating Minimum", min_value=4.0, max_value=5.0, value=4.5, step=0.1)
+
+sort_option = st.sidebar.selectbox(
+    "📊 Urutan Prioritas Utama", 
+    options=["Skor Rekomendasi DSS", "Rating Tertinggi", "Harga Terendah (Paling Hemat)", "Jarak Terdekat"]
+)
+
 df_filtered = df_scored.copy()
 
 if search_query:
     df_filtered = df_filtered[df_filtered['BeachClub'].str.contains(search_query, case=False, na=False)]
 
 df_filtered = df_filtered[df_filtered['Area'].isin(selected_areas)]
-df_filtered = df_filtered[df_filtered['Harga'] <= budget_limit]
+df_filtered = df_filtered[df_filtered['Harga_Rupiah'] <= budget_limit]
 df_filtered = df_filtered[df_filtered['Rating'] >= min_rating]
 
-# Re-sort data frames dynamically based on secondary filter specifications
-if sort_option == "DSS Recommendation Score":
+if sort_option == "Skor Rekomendasi DSS":
     df_filtered = df_filtered.sort_values(by='Score', ascending=False)
-elif sort_option == "Highest Rating":
+elif sort_option == "Rating Tertinggi":
     df_filtered = df_filtered.sort_values(by='Rating', ascending=False)
-elif sort_option == "Lowest Price (Value)":
-    df_filtered = df_filtered.sort_values(by='Harga', ascending=True)
-elif sort_option == "Proximity (Nearest)":
+elif sort_option == "Harga Terendah (Paling Hemat)":
+    df_filtered = df_filtered.sort_values(by='Harga_Rupiah', ascending=True)
+elif sort_option == "Jarak Terdekat":
     df_filtered = df_filtered.sort_values(by='Jarak', ascending=True)
 
-# -----------------------------------------------------------------------------
-# 6. HERO DISPLAY BANNER (TRAVELOKA & AIRBNB INSPIRED LUXURY AESTHETIC)
-# -----------------------------------------------------------------------------
+
 st.markdown(f"""
 <div class="hero-container">
-    <div class="hero-title">Find the Ultimate Luxury Island Escape</div>
-    <div class="hero-subtitle">An Elite Analytical Multi-Criteria Decision Engine providing custom calibrated recommendations for your premier Bali itinerary destinations.</div>
+    <div class="hero-title">Temukan Eksotisme Terbaik di Bali</div>
+    <div class="hero-subtitle">Sistem Pengambil Keputusan Analitis Multi-Kriteria (MCDA) yang dikalibrasi khusus untuk memetakan Beach Club premium sesuai preferensi eksklusif Anda.</div>
     <div class="stat-row">
         <div class="stat-badge">
             <div class="stat-badge-val">{len(df_scored)}</div>
-            <div class="stat-badge-lbl">Verified Clubs</div>
+            <div class="stat-badge-lbl">Beach Club Terverifikasi</div>
         </div>
         <div class="stat-badge">
             <div class="stat-badge-val">⭐ {df_scored['Rating'].mean():.2f}</div>
-            <div class="stat-badge-lbl">Average Rating</div>
+            <div class="stat-badge-lbl">Rata-rata Rating</div>
         </div>
         <div class="stat-badge">
-            <div class="stat-badge-val">${df_scored['Harga'].mean():.0f}</div>
-            <div class="stat-badge-lbl">Avg Min Spend</div>
+            <div class="stat-badge-val">{format_rupiah(df_scored['Harga_Rupiah'].mean())}</div>
+            <div class="stat-badge-lbl">Rata-rata Minimum Spend</div>
         </div>
         <div class="stat-badge">
             <div class="stat-badge-val">{df_scored['Area'].nunique()}</div>
-            <div class="stat-badge-lbl">Elite Hub Areas</div>
+            <div class="stat-badge-lbl">Kawasan Hub Elit</div>
         </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# 7. METRICS & EXECUTIVE DASHBOARD PANEL
-# -----------------------------------------------------------------------------
-st.markdown("<div class='section-header'>Live Analytics Workspace & Data Stream</div>", unsafe_allow_html=True)
+
+st.markdown("<div class='section-header'>Ringkasan Dashboard Hasil Filter Analitis</div>", unsafe_allow_html=True)
 
 if not df_filtered.empty:
     m1, m2, m3, m4, m5 = st.columns(5)
     with m1:
         st.markdown(f"""
         <div class="glass-card" style="text-align: center; padding: 15px;">
-            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Matches Found</p>
-            <h2 style="color: #fff; margin: 10px 0 0 0; font-weight:800;">{len(df_filtered)}</h2>
+            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Sesuai Filter</p>
+            <h2 style="color: #fff; margin: 10px 0 0 0; font-weight:800;">{len(df_filtered)} Destinasi</h2>
         </div>
         """, unsafe_allow_html=True)
     with m2:
         st.markdown(f"""
         <div class="glass-card" style="text-align: center; padding: 15px;">
-            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Avg Rating</p>
+            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Rerata Rating</p>
             <h2 style="color: #ffe066; margin: 10px 0 0 0; font-weight:800;">⭐ {df_filtered['Rating'].mean():.2f}</h2>
         </div>
         """, unsafe_allow_html=True)
     with m3:
         st.markdown(f"""
         <div class="glass-card" style="text-align: center; padding: 15px;">
-            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Avg Entry Price</p>
-            <h2 style="color: #fff; margin: 10px 0 0 0; font-weight:800;">${df_filtered['Harga'].mean():.1f}</h2>
+            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Rerata Biaya</p>
+            <h2 style="color: #fff; margin: 10px 0 0 0; font-weight:800; font-size:1.2rem; padding-top:4px;">{format_rupiah(df_filtered['Harga_Rupiah'].mean())}</h2>
         </div>
         """, unsafe_allow_html=True)
     with m4:
         top_area_val = df_filtered['Area'].mode()[0] if not df_filtered['Area'].empty else "N/A"
         st.markdown(f"""
         <div class="glass-card" style="text-align: center; padding: 15px;">
-            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Top Dense Area</p>
+            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Wilayah Dominan</p>
             <h2 style="color: #d4af37; margin: 10px 0 0 0; font-weight:800; font-size:1.4rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{top_area_val}</h2>
         </div>
         """, unsafe_allow_html=True)
@@ -498,61 +476,55 @@ if not df_filtered.empty:
         max_score_val = df_filtered['Score'].max() if not df_filtered['Score'].empty else 0.0
         st.markdown(f"""
         <div class="glass-card" style="text-align: center; padding: 15px;">
-            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Peak DSS Score</p>
-            <h2 style="color: #22c55e; margin: 10px 0 0 0; font-weight:800;">{max_score_val:.1f}</h2>
+            <p style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; margin: 0;">Skor DSS Tertinggi</p>
+            <h2 style="color: #22c55e; margin: 10px 0 0 0; font-weight:800;">{max_score_val:.1f} Pts</h2>
         </div>
         """, unsafe_allow_html=True)
 else:
-    st.warning("No destinations match your current filter parameters. Please adjust parameters in the workspace panel.")
+    st.warning("Tidak ada destinasi yang cocok dengan kombinasi kriteria filter Anda. Silakan sesuaikan slider di panel kiri.")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# 8. THE GOLD STANDARD: TOP COMPUTED DSS RECOMMANDATION BANNER
-# -----------------------------------------------------------------------------
 if not df_filtered.empty:
-    # Top absolute model selection across existing options
     top_recommendation = df_filtered.iloc[0]
+    maps_url_top = f"https://www.google.com/maps/search/?api=1&query={top_recommendation['BeachClub'].replace(' ', '+')}+Bali"
     
     st.markdown(f"""
     <div class="top-rec-banner">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
             <div>
                 <span style="background: #d4af37; color: #000; padding: 4px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;">
-                    🏆 CRITERIA MATCH WINNER
+                    🏆 REKOMENDASI UTAMA (SKOR TERTINGGI)
                 </span>
                 <h1 style="color: #fff; margin: 10px 0 5px 0; font-weight: 800;">{top_recommendation['BeachClub']}</h1>
                 <p style="color: #94a3b8; margin: 0; font-size: 1.1rem;">
-                    Ranked #1 out of all matched clubs with an aggregated Decision Engine Score of 
-                    <strong style="color: #d4af37;">{top_recommendation['Score']}</strong>
+                    Pilihan peringkat #1 berdasarkan perhitungan algoritma DSS multi-kriteria dengan bobot skor agregat sebesar 
+                    <strong style="color: #d4af37;">{top_recommendation['Score']} Poin</strong>
                 </p>
                 <div style="display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap;">
-                    <div style="color:#fff;">📍 <strong>Area:</strong> {top_recommendation['Area']}</div>
-                    <div style="color:#ffe066;">⭐ <strong>Rating:</strong> {top_recommendation['Rating']}/5.0</div>
-                    <div style="color:#fff;">💰 <strong>Min Spend:</strong> ${top_recommendation['Harga']}</div>
-                    <div style="color:#fff;">⚡ <strong>Facilities Score:</strong> {top_recommendation['Fasilitas']} pts</div>
-                    <div style="color:#fff;">🚗 <strong>Distance Index:</strong> {top_recommendation['Jarak']} km</div>
+                    <div style="color:#fff;">📍 <strong>Wilayah:</strong> {top_recommendation['Area']}</div>
+                    <div style="color:#ffe066;">⭐ <strong>Rating:</strong> {top_recommendation['Rating']} / 5.0</div>
+                    <div style="color:#fff;">💰 <strong>Minimum Spend:</strong> {format_rupiah(top_recommendation['Harga_Rupiah'])}</div>
+                    <div style="color:#fff;">⚡ <strong>Indeks Fasilitas:</strong> {top_recommendation['Fasilitas']} Poin</div>
+                    <div style="color:#fff;">🚗 <strong>Jarak Pusat:</strong> {top_recommendation['Jarak']} Km</div>
                 </div>
             </div>
             <div>
-                <a class="action-btn-anchor" href="https://www.google.com/maps/search/?api=1&query={top_recommendation['BeachClub'].replace(' ', '+')}+Bali" target="_blank">
-                    <button class="action-btn" style="padding: 16px 32px; font-size: 1rem;">Book Winner Destination</button>
+                <a class="action-btn-anchor" href="{maps_url_top}" target="_blank">
+                    <button class="action-btn" style="padding: 16px 32px; font-size: 1rem;">Rute Navigasi Utama</button>
                 </a>
             </div>
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-# -----------------------------------------------------------------------------
-# 9. TWO COLUMN INTERACTIVE DISPLAY LAYER: MAP VS GALLERY MATRIX
-# -----------------------------------------------------------------------------
+
 layout_col1, layout_col2 = st.columns([1, 1])
 
 with layout_col1:
-    st.markdown("<div class='section-header'>Geospatial Density Mapping Analysis</div>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>Peta Kepadatan Geospasial Bali</div>", unsafe_allow_html=True)
     
     if not df_filtered.empty:
-        # Initialize pydeck map with spatial configuration matrix
         view_state = pdk.ViewState(
             latitude=df_filtered['lat'].mean(),
             longitude=df_filtered['lon'].mean(),
@@ -585,11 +557,10 @@ with layout_col1:
                 "html": """
                     <div style='background: rgba(15,23,42,0.95); color: white; padding: 12px; border-radius: 10px; border: 1px solid rgba(212,175,55,0.4); font-family: "Plus Jakarta Sans", sans-serif;'>
                         <b style='font-size: 1.1rem; color: #d4af37;'>{BeachClub}</b><br/>
-                        <b>Area:</b> {Area}<br/>
-                        <b>DSS Recommendation Score:</b> {Score}<br/>
+                        <b>Wilayah:</b> {Area}<br/>
+                        <b>Skor DSS:</b> {Score} Poin<br/>
                         <b>Rating:</b> ⭐ {Rating}<br/>
-                        <b>Minimum Spend:</b> ${Harga}<br/>
-                        <b>Distance to Center:</b> {Jarak} km
+                        <b>Jarak:</b> {Jarak} km
                     </div>
                 """,
                 "style": {"backgroundColor": "transparent", "color": "white", "zIndex": "10000"}
@@ -597,16 +568,12 @@ with layout_col1:
         )
         st.pydeck_chart(deck_map)
     else:
-        st.info("No spatial data coordinates available to plot based on structural filter parameters.")
+        st.info("Peta tidak dapat dimuat karena tidak ada data yang lolos filter.")
 
 with layout_col2:
-    st.markdown("<div class='section-header'>Airbnb-Inspired Luxury Gallery Showcase</div>", unsafe_allow_html=True)
+    st.markdown("<div class='section-header'>Galeri Eksklusif Bergaya Airbnb</div>", unsafe_allow_html=True)
     
     if not df_filtered.empty:
-        # Create an adaptive scroll responsive grid architecture matrix
-        grid_container = st.container()
-        
-        # Paginate or structure display rows cleanly
         row_count = int(np.ceil(len(df_filtered) / 2))
         data_idx = 0
         
@@ -617,59 +584,57 @@ with layout_col2:
                 if data_idx < len(df_filtered):
                     row = df_filtered.iloc[data_idx]
                     
-                    # Define ranking tier styles badges
                     if row['Rank'] == 1:
-                        badge_cls, rank_lbl = "rank-gold", "Gold Standard"
+                        badge_cls, rank_lbl = "rank-gold", "Gold Tier"
                     elif row['Rank'] == 2:
-                        badge_cls, rank_lbl = "rank-silver", "Silver Choice"
+                        badge_cls, rank_lbl = "rank-silver", "Silver Tier"
                     elif row['Rank'] == 3:
                         badge_cls, rank_lbl = "rank-bronze", "Bronze Tier"
                     else:
-                        badge_cls, rank_lbl = "rank-standard", f"Rank #{row['Rank']}"
+                        badge_cls, rank_lbl = "rank-standard", f"Peringkat #{row['Rank']}"
                         
                     maps_url = f"https://www.google.com/maps/search/?api=1&query={row['BeachClub'].replace(' ', '+')}+Bali"
                     
                     col.markdown(f"""
                     <div class="hotel-card">
                         <div class="hotel-img-container">
-                            <img class="hotel-img" src="{row['Image']}" alt="Bali Beach Club Luxury Image"/>
+                            <img class="hotel-img" src="{row['Image']}" alt="Foto Beach Club"/>
                             <div class="rank-tag {badge_cls}">{rank_lbl}</div>
                             <div class="score-badge-overlay">{row['Score']}</div>
                         </div>
                         <div class="hotel-body">
                             <div class="hotel-title">{row['BeachClub']}</div>
-                            <div class="hotel-location">📍 {row['Area']} • {row['Jarak']} km away</div>
+                            <div class="hotel-location">📍 {row['Area']} • {row['Jarak']} km dari Pusat</div>
                             <div class="hotel-metrics">
                                 <div>
                                     <div class="metric-box-val">⭐ {row['Rating']}</div>
                                     <div class="metric-box-lbl">Rating</div>
                                 </div>
                                 <div>
-                                    <div class="metric-box-val">${row['Harga']}</div>
-                                    <div class="metric-box-lbl">Spend</div>
+                                    <div class="metric-box-val" style="font-size:0.75rem; white-space:nowrap;">{format_rupiah(row['Harga_Rupiah'])}</div>
+                                    <div class="metric-box-lbl">Min Spend</div>
                                 </div>
                                 <div>
                                     <div class="metric-box-val">{row['Fasilitas']}</div>
-                                    <div class="metric-box-lbl">Facilities</div>
+                                    <div class="metric-box-lbl">Fasilitas</div>
                                 </div>
                             </div>
                             <a class="action-btn-anchor" href="{maps_url}" target="_blank">
-                                <div class="action-btn">Navigate Location ↗</div>
+                                <div class="action-btn">Buka Google Maps ↗</div>
                             </a>
                         </div>
                     </div>
                     """, unsafe_allow_html=True)
                     data_idx += 1
     else:
-        st.info("No destinations available to populate visual cards.")
+        st.info("Galeri kosong karena tidak ada aset yang sesuai kriteria.")
 
-# -----------------------------------------------------------------------------
-# 10. DETAILED OBJECT COMPONENT CORRELATION INTERFACE VIEW
-# -----------------------------------------------------------------------------
-st.markdown("<br><div class='section-header'>Deep-Dive Destinational Matrix Viewer</div>", unsafe_allow_html=True)
+
+st.markdown("<br><div class='section-header'>Inspeksi Detil & Komparasi Kriteria Aset</div>", unsafe_allow_html=True)
 if not df_filtered.empty:
-    selected_club_name = st.selectbox("🎯 Select a Beach Club to isolate metrics", options=df_filtered['BeachClub'].tolist())
+    selected_club_name = st.selectbox("🎯 Pilih Beach Club untuk analisis mendalam:", options=df_filtered['BeachClub'].tolist())
     club_meta = df_filtered[df_filtered['BeachClub'] == selected_club_name].iloc[0]
+    maps_url_detail = f"https://www.google.com/maps/search/?api=1&query={club_meta['BeachClub'].replace(' ', '+')}+Bali"
     
     det_col1, det_col2 = st.columns([1.2, 2])
     with det_col1:
@@ -682,48 +647,44 @@ if not df_filtered.empty:
         st.markdown(f"""
         <div class="glass-card" style="height: 340px; display: flex; flex-direction: column; justify-content: space-between; margin-bottom: 0;">
             <div>
-                <h2 style="color: #fff; margin: 0 0 5px 0; font-weight:800;">{club_meta['BeachClub']} Analysis Summary</h2>
-                <p style="color: #d4af37; font-size: 1.1rem; margin-bottom: 20px;">Structured Score Index: {club_meta['Score']} Points</p>
+                <h2 style="color: #fff; margin: 0 0 5px 0; font-weight:800;">Analisis Kuantitatif {club_meta['BeachClub']}</h2>
+                <p style="color: #d4af37; font-size: 1.1rem; margin-bottom: 20px;">Skor Indeks DSS Akhir: {club_meta['Score']} Poin</p>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
                     <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                        <span style="color: #64748b; font-size: 0.8rem; display: block; text-transform: uppercase;">Zone Area Cluster</span>
+                        <span style="color: #64748b; font-size: 0.8rem; display: block; text-transform: uppercase;">Klaster Wilayah</span>
                         <strong style="font-size: 1.1rem; color: #fff;">{club_meta['Area']}</strong>
                     </div>
                     <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                        <span style="color: #64748b; font-size: 0.8rem; display: block; text-transform: uppercase;">User Experience Score</span>
+                        <span style="color: #64748b; font-size: 0.8rem; display: block; text-transform: uppercase;">Skala Kepuasan Pengunjung</span>
                         <strong style="font-size: 1.1rem; color: #ffe066;">⭐ {club_meta['Rating']} / 5.0</strong>
                     </div>
                     <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                        <span style="color: #64748b; font-size: 0.8rem; display: block; text-transform: uppercase;">Minimum Spend Index</span>
-                        <strong style="font-size: 1.1rem; color: #fff;">${club_meta['Harga']} USD</strong>
+                        <span style="color: #64748b; font-size: 0.8rem; display: block; text-transform: uppercase;">Minimum Spend (Rupiah)</span>
+                        <strong style="font-size: 1.1rem; color: #fff;">{format_rupiah(club_meta['Harga_Rupiah'])}</strong>
                     </div>
                     <div style="background: rgba(255,255,255,0.02); padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                        <span style="color: #64748b; font-size: 0.8rem; display: block; text-transform: uppercase;">Facilities Capacity Vector</span>
-                        <strong style="font-size: 1.1rem; color: #fff;">{club_meta['Fasilitas']} / 100 Points</strong>
+                        <span style="color: #64748b; font-size: 0.8rem; display: block; text-transform: uppercase;">Kapasitas Bobot Fasilitas</span>
+                        <strong style="font-size: 1.1rem; color: #fff;">{club_meta['Fasilitas']} / 100 Poin</strong>
                     </div>
                 </div>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
-                <span style="color: #64748b; font-size: 0.85rem;">Distance Factor: {club_meta['Jarak']} km to core city limits</span>
-                <a class="action-btn-anchor" style="margin-left: auto;" href="https://www.google.com/maps/search/?api=1&query={club_meta['BeachClub'].replace(' ', '+')}+Bali" target="_blank">
-                    <button class="action-btn" style="padding: 10px 24px;">Launch Google Maps Engine ↗</button>
+                <span style="color: #64748b; font-size: 0.85rem;">Faktor Jarak Tempuh: {club_meta['Jarak']} km menuju pusat destinasi utama.</span>
+                <a class="action-btn-anchor" style="margin-left: auto;" href="{maps_url_detail}" target="_blank">
+                    <button class="action-btn" style="padding: 10px 24px;">Buka di Google Maps ↗</button>
                 </a>
             </div>
         </div>
         """, unsafe_allow_html=True)
-else:
-    st.info("Select items to trigger descriptive analytics metrics details.")
 
-# -----------------------------------------------------------------------------
-# 11. ADVANCED EMPIRICAL CHARTS & COMPARATIVE VISUALIZATIONS
-# -----------------------------------------------------------------------------
-st.markdown("<br><div class='section-header'>Analytical Charting Workspace</div>", unsafe_allow_html=True)
+
+st.markdown("<br><div class='section-header'>Metrik Visualisasi Data & Diagram Keputusan</div>", unsafe_allow_html=True)
 
 if not df_filtered.empty:
     c_col1, c_col2, c_col3 = st.columns([1.2, 1, 1])
     
     with c_col1:
-        st.markdown("<p style='color: #94a3b8; font-weight: 600; margin-bottom: 10px;'>DSS Calculated Rank Performance</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #94a3b8; font-weight: 600; margin-bottom: 10px;'>Peringkat Efektivitas Skor DSS</p>", unsafe_allow_html=True)
         fig_rank = px.bar(
             df_filtered, 
             x='Score', 
@@ -737,17 +698,17 @@ if not df_filtered.empty:
             margin=dict(l=20, r=20, t=10, b=20),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            xaxis_title="Decision Engine Score",
+            xaxis_title="Skor Rekomendasi DSS",
             yaxis_title=None,
             coloraxis_showscale=False
         )
         st.plotly_chart(fig_rank, use_container_width=True)
         
     with c_col2:
-        st.markdown("<p style='color: #94a3b8; font-weight: 600; margin-bottom: 10px;'>Price vs. Quality Correlation Plot</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #94a3b8; font-weight: 600; margin-bottom: 10px;'>Korelasi Biaya Minimum vs Kualitas Rating</p>", unsafe_allow_html=True)
         fig_scatter = px.scatter(
             df_filtered,
-            x='Harga',
+            x='Harga_Rupiah',
             y='Rating',
             size='Fasilitas',
             color='Area',
@@ -758,13 +719,13 @@ if not df_filtered.empty:
             margin=dict(l=20, r=20, t=10, b=20),
             paper_bgcolor='rgba(0,0,0,0)',
             plot_bgcolor='rgba(0,0,0,0)',
-            xaxis_title="Entry Spend ($)",
-            yaxis_title="Rating Standard"
+            xaxis_title="Minimum Spend (IDR)",
+            yaxis_title="Skala Rating Bintang"
         )
         st.plotly_chart(fig_scatter, use_container_width=True)
         
     with c_col3:
-        st.markdown("<p style='color: #94a3b8; font-weight: 600; margin-bottom: 10px;'>Regional Asset Density Share</p>", unsafe_allow_html=True)
+        st.markdown("<p style='color: #94a3b8; font-weight: 600; margin-bottom: 10px;'>Distribusi Dominasi Area Berdasarkan Bobot</p>", unsafe_allow_html=True)
         fig_pie = px.pie(
             df_filtered,
             names='Area',
@@ -779,14 +740,10 @@ if not df_filtered.empty:
         )
         fig_pie.update_traces(textposition='inside', textinfo='percent+label')
         st.plotly_chart(fig_pie, use_container_width=True)
-else:
-    st.info("Insufficient active dataset options populated to plot graphics.")
 
-# -----------------------------------------------------------------------------
-# 12. ENTERPRISE EXPORT MATRIX ENGINE LAYER
-# -----------------------------------------------------------------------------
-st.markdown("<br><div class='section-header'>Data Offboarding Framework</div>", unsafe_allow_html=True)
-st.markdown("Download full quantitative multi-criteria scoring models configured mapping parameters for analytical reference outside workspace dashboard.")
+
+st.markdown("<br><div class='section-header'>Ekspor Data Hasil Perhitungan</div>", unsafe_allow_html=True)
+st.markdown("Anda dapat mengunduh data matriks hasil perangkingan terfilter di atas untuk keperluan analisis lanjutan.")
 
 @st.cache_data
 def transform_df_to_csv(df):
@@ -795,39 +752,37 @@ def transform_df_to_csv(df):
 csv_data_buffer = transform_df_to_csv(df_filtered)
 
 st.download_button(
-    label="📥 Download Structured Decision Matrix (.CSV)",
+    label="📥 Unduh File Matriks Keputusan (.CSV)",
     data=csv_data_buffer,
-    file_name="Bali_Beach_Club_DSS_Ranks.csv",
+    file_name="Peringkat_Beach_Club_Bali_DSS.csv",
     mime="text/csv"
 )
 
-# -----------------------------------------------------------------------------
-# 13. COMPREHENSIVE PRODUCTION SYSTEM FOOTER ARCHITECTURE
-# -----------------------------------------------------------------------------
+
 st.markdown(f"""
 <div class="footer-container">
     <div style="display: flex; justify-content: space-between; flex-wrap: wrap; gap: 30px;">
         <div style="max-width: 450px;">
-            <h4 style="color: #fff; margin: 0 0 10px 0; font-weight: 700; font-size:1.1rem;">Villas & Waves DSS Portfolio Platform</h4>
-            <p style="line-height: 1.6;">An industrial production enterprise-grade application demonstrating advanced analytical Multi-Criteria Decision Analysis (MCDA) logic mapped dynamically over stylized modern layouts mimicking premier international hospitality portals.</p>
+            <h4 style="color: #fff; margin: 0 0 10px 0; font-weight: 700; font-size:1.1rem;">Platform Portofolio Villas & Waves DSS</h4>
+            <p style="line-height: 1.6;">Sebuah aplikasi tingkat *production portfolio* yang mendemonstrasikan integrasi logika analitis *Decision Support System* dengan antarmuka premium terinspirasi dari portal wisata global terkemuka.</p>
         </div>
         <div>
-            <h4 style="color: #fff; margin: 0 0 10px 0; font-weight: 700; font-size:1.1rem;">Core Technology Stack Matrix</h4>
-            <p style="margin: 4px 0;">💻 Python Engine Core</p>
-            <p style="margin: 4px 0;">⚡ Streamlit Micro-Framework Architecture</p>
-            <p style="margin: 4px 0;">📊 Pandas & Plotly Visual Pipeline</p>
-            <p style="margin: 4px 0;">🎨 Glassmorphic Custom Style Injection Layers</p>
+            <h4 style="color: #fff; margin: 0 0 10px 0; font-weight: 700; font-size:1.1rem;">Teknologi & Framework Stack</h4>
+            <p style="margin: 4px 0;">💻 Bahasa Pemrograman Python Core</p>
+            <p style="margin: 4px 0;">⚡ Arsitektur Mikro-Sistem Streamlit</p>
+            <p style="margin: 4px 0;">📊 Manipulasi Data & Chart via Pandas & Plotly</p>
+            <p style="margin: 4px 0;">🎨 Injeksi Gaya Desain Custom Glassmorphism UI</p>
         </div>
         <div>
-            <h4 style="color: #fff; margin: 0 0 10px 0; font-weight: 700; font-size:1.1rem;">Analytical Multi-Criteria Equation</h4>
+            <h4 style="color: #fff; margin: 0 0 10px 0; font-weight: 700; font-size:1.1rem;">Rumus Keputusan Multi-Kriteria</h4>
             <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); color:#ffe066; font-family: monospace;">
-                Score = (Rating * 40) + (Fasilitas * 0.3) - (Harga * 0.05) - (Jarak * 0.2)
+                Skor = (Rating * 40) + (Fasilitas * 0.3) - (Harga * 0.05) - (Jarak * 0.2)
             </div>
-            <p style="font-size: 0.75rem; color:#64748b; margin-top:6px;">Calibrated explicitly to maximize quality indices while dampening distance & spend overhead barriers.</p>
+            <p style="font-size: 0.75rem; color:#64748b; margin-top:6px;">Bobot dirancang untuk memaksimalkan kepuasan kualitas internal sambil menekan hambatan jarak geografis & biaya logistik minimum spend.</p>
         </div>
     </div>
     <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.03); font-size: 0.8rem;">
-        &copy; 2026 Villas & Waves Systems Enterprise Inc. Developed for Executive High-Fidelity Data Science Asset Portfolios. Open Access License.
+        © 2026 Villas & Waves Systems Enterprise Inc. Dibuat Khusus untuk Portofolio Data Science Kelas Profesional.
     </div>
 </div>
 """, unsafe_allow_html=True)
