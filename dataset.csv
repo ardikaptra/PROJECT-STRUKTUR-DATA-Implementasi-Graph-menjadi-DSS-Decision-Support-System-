@@ -36,7 +36,7 @@ BEACH_CLUB_DATASET = {
     "Komune Beach Club": {"wilayah": "Gianyar", "rating": 4.5, "min_spend": 200000, "lat": -8.5911, "lon": 115.3475},
     "Soka Beach Club": {"wilayah": "Tabanan", "rating": 4.2, "min_spend": 150000, "lat": -8.5284, "lon": 115.0112},
     "Sandy Bay Beach Club": {"wilayah": "Nusa Lembongan", "rating": 4.6, "min_spend": 300000, "lat": -8.6791, "lon": 115.4289},
-    "Ohana’s Beach Club": {"wilayah": "Nusa Lembongan", "rating": 4.5, "min_spend": 250000, "lat": -8.6698, "lon": 115.4332},
+    "Ohana's Beach Club": {"wilayah": "Nusa Lembongan", "rating": 4.5, "min_spend": 250000, "lat": -8.6698, "lon": 115.4332},
     "Le Pirate Beach Club": {"wilayah": "Nusa Ceningan", "rating": 4.5, "min_spend": 200000, "lat": -8.6947, "lon": 115.4435}
 }
 
