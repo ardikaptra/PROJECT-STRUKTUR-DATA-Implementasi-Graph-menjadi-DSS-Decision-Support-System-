@@ -1,11 +1,10 @@
 BEACH_CLUB_DATASET = {
-    # Kawasan Seminyak
+
     "Potato Head Beach Club": {"wilayah": "Seminyak", "rating": 4.7, "min_spend": 500000, "lat": -8.6797, "lon": 115.1514},
     "Ku De Ta": {"wilayah": "Seminyak", "rating": 4.6, "min_spend": 400000, "lat": -8.6874, "lon": 115.1517},
     "Mrs Sippy Bali": {"wilayah": "Seminyak", "rating": 4.5, "min_spend": 300000, "lat": -8.6811, "lon": 115.1542},
     "Azul Beach Club": {"wilayah": "Seminyak", "rating": 4.4, "min_spend": 250000, "lat": -8.7073, "lon": 115.1616},
-    
-    # Kawasan Canggu
+
     "Finns Beach Club": {"wilayah": "Canggu", "rating": 4.7, "min_spend": 600000, "lat": -8.6661, "lon": 115.1302},
     "Finns VIP Beach Club": {"wilayah": "Canggu", "rating": 4.8, "min_spend": 800000, "lat": -8.6659, "lon": 115.1305},
     "Atlas Beach Fest": {"wilayah": "Canggu", "rating": 4.8, "min_spend": 850000, "lat": -8.6638, "lon": 115.1274},
@@ -13,8 +12,7 @@ BEACH_CLUB_DATASET = {
     "La Brisa": {"wilayah": "Canggu", "rating": 4.7, "min_spend": 300000, "lat": -8.6541, "lon": 115.1226},
     "Como Beach Club": {"wilayah": "Canggu", "rating": 4.6, "min_spend": 400000, "lat": -8.6548, "lon": 115.1245},
     "Cafe del Mar Bali": {"wilayah": "Canggu", "rating": 4.5, "min_spend": 500000, "lat": -8.6728, "lon": 115.1378},
-    
-    # Kawasan Uluwatu & Bukit
+
     "Savaya Bali": {"wilayah": "Uluwatu", "rating": 4.8, "min_spend": 1000000, "lat": -8.8475, "lon": 115.1612},
     "Single Fin": {"wilayah": "Uluwatu", "rating": 4.6, "min_spend": 300000, "lat": -8.8143, "lon": 115.0881},
     "El Kabron Bali": {"wilayah": "Uluwatu", "rating": 4.7, "min_spend": 700000, "lat": -8.8037, "lon": 115.1154},
@@ -24,15 +22,13 @@ BEACH_CLUB_DATASET = {
     "Karma Beach Bali": {"wilayah": "Uluwatu", "rating": 4.6, "min_spend": 600000, "lat": -8.8483, "lon": 115.1731},
     "Palmilla Bali": {"wilayah": "Uluwatu", "rating": 4.5, "min_spend": 350000, "lat": -8.8471, "lon": 115.1221},
     "Minoo Beach Club": {"wilayah": "Uluwatu", "rating": 4.4, "min_spend": 250000, "lat": -8.8463, "lon": 115.1198},
-    
-    # Kawasan Pantai Selatan Lainnya
+
     "TT Beach Club": {"wilayah": "Melasti", "rating": 4.7, "min_spend": 500000, "lat": -8.8479, "lon": 115.1601},
     "White Rock Beach Club": {"wilayah": "Melasti", "rating": 4.6, "min_spend": 450000, "lat": -8.8480, "lon": 115.1632},
     "Roosterfish Beach Club": {"wilayah": "Pandawa", "rating": 4.5, "min_spend": 300000, "lat": -8.8447, "lon": 115.1912},
     "Manarai Beach House": {"wilayah": "Nusa Dua", "rating": 4.5, "min_spend": 400000, "lat": -8.8064, "lon": 115.2341},
     "Sakala Beach Club": {"wilayah": "Nusa Dua", "rating": 4.3, "min_spend": 250000, "lat": -8.7669, "lon": 115.2227},
-    
-    # Kawasan Timur & Pantai Luar
+
     "Komune Beach Club": {"wilayah": "Gianyar", "rating": 4.5, "min_spend": 200000, "lat": -8.5911, "lon": 115.3475},
     "Soka Beach Club": {"wilayah": "Tabanan", "rating": 4.2, "min_spend": 150000, "lat": -8.5284, "lon": 115.0112},
     "Sandy Bay Beach Club": {"wilayah": "Nusa Lembongan", "rating": 4.6, "min_spend": 300000, "lat": -8.6791, "lon": 115.4289},
