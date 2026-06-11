@@ -17,7 +17,7 @@ BEACH_CLUB_DATASET = {
     # Kawasan Uluwatu & Bukit
     "Savaya Bali": {"wilayah": "Uluwatu", "rating": 4.8, "min_spend": 1000000, "lat": -8.8475, "lon": 115.1612},
     "Single Fin": {"wilayah": "Uluwatu", "rating": 4.6, "min_spend": 300000, "lat": -8.8143, "lon": 115.0881},
-    "El Kabron Bali": {"wilaktu": "Uluwatu", "rating": 4.7, "min_spend": 700000, "lat": -8.8037, "lon": 115.1154},
+    "El Kabron Bali": {"wilayah": "Uluwatu", "rating": 4.7, "min_spend": 700000, "lat": -8.8037, "lon": 115.1154},
     "One Eighteen (180 Degrees)": {"wilayah": "Uluwatu", "rating": 4.7, "min_spend": 650000, "lat": -8.8468, "lon": 115.1856},
     "Ulu Cliffhouse": {"wilayah": "Uluwatu", "rating": 4.6, "min_spend": 400000, "lat": -8.8091, "lon": 115.0931},
     "Sundays Beach Club": {"wilayah": "Uluwatu", "rating": 4.7, "min_spend": 550000, "lat": -8.8481, "lon": 115.1742},
